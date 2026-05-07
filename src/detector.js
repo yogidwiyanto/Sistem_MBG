@@ -24,7 +24,7 @@ const CLASS_COLORS = [
   "#f472b6", "#38bdf8",
 ];
 
-const MODEL_INPUT_SIZE = 416;
+const MODEL_INPUT_SIZE = 640;
 
 export class Detector {
   constructor() {

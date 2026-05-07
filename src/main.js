@@ -350,8 +350,8 @@ async function detectLoop() {
     } catch (e) { console.error(e); }
     const elapsed = performance.now() - t0;
     $("camera-fps").textContent = Math.round(1000 / elapsed) + " FPS";
-    // Yield to browser to keep UI responsive
-    await new Promise((r) => setTimeout(r, 0));
+    // Throttle inference slightly (100ms) to ensure video feed stays smooth and doesn't lag
+    await new Promise((r) => setTimeout(r, 100));
   }
 }
 
