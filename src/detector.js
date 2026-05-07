@@ -24,25 +24,16 @@ const CLASS_COLORS = [
   "#f472b6", "#38bdf8",
 ];
 
-const MODEL_INPUT_SIZE = 640;
-const FAST_INPUT_SIZE = 320;
+const MODEL_INPUT_SIZE = 416;
 
 export class Detector {
   constructor() {
     this.session = null;
     this.isLoading = false;
     this.confidenceThreshold = 0.5;
-    this.inputSize = MODEL_INPUT_SIZE;
     // Reusable preprocessing canvas
     this._prepCanvas = document.createElement("canvas");
     this._prepCtx = this._prepCanvas.getContext("2d", { willReadFrequently: true });
-  }
-
-  /**
-   * Set input size (320 = fast/realtime, 640 = accurate/upload)
-   */
-  setInputSize(size) {
-    this.inputSize = size;
   }
 
   /**
@@ -121,7 +112,7 @@ export class Detector {
    * Resize to 640x640, normalize to [0,1], convert to NCHW format
    */
   preprocess(imageSource, sourceWidth, sourceHeight) {
-    const sz = this.inputSize;
+    const sz = MODEL_INPUT_SIZE;
     const canvas = this._prepCanvas;
     const ctx = this._prepCtx;
     canvas.width = sz;

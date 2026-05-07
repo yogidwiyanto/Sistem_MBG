@@ -312,12 +312,11 @@ async function startCamera() {
     cameraCanvas.width = video.videoWidth;
     cameraCanvas.height = video.videoHeight;
     cameraRenderer = new Renderer(cameraCanvas);
+    cameraPlaceholder.classList.add("hidden");
     $("btn-start-cam").classList.add("hidden");
     $("camera-active-controls").classList.remove("hidden");
     $("camera-active-controls").style.display = "flex";
 
-    // Use 416x416 as the sweet spot for realtime (2.3x faster than 640, better accuracy than 320)
-    detector.setInputSize(416);
     isDetecting = true;
     detectLoop();
   } catch (e) {
@@ -339,8 +338,6 @@ function stopCamera() {
   $("live-results-list").innerHTML = '<div class="live-empty"><span>🔍</span><p>Arahkan kamera ke makanan</p></div>';
   $("live-nutrition").classList.add("hidden");
   $("live-count").textContent = "0 item";
-  // Restore full size for upload mode
-  detector.setInputSize(640);
 }
 
 async function detectLoop() {
