@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sistem Deteksi Makanan & Estimasi Nutrisi menggunakan AI YOLOv11 — Deteksi makanan secara real-time atau upload gambar" />
+    <title>MBG Food — Deteksi Makanan & Nutrisi AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- ===== Loading Overlay ===== -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-logo">
+          <span class="loading-emoji">🍽️</span>
+          <h1>MBG Food<span class="dot-accent">.</span></h1>
+          <p>Deteksi Makanan & Nutrisi AI</p>
+        </div>
+        <div class="loading-bar-track">
+          <div class="loading-bar-fill" id="loading-bar"></div>
+        </div>
+        <p class="loading-status" id="loading-text">Memuat model AI...</p>
+      </div>
+    </div>
+
+    <!-- ===== Main App ===== -->
+    <div id="app" class="app hidden">
+
+      <!-- Navbar -->
+      <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+          <a href="#" class="nav-brand" id="nav-brand-link">
+            <span class="brand-emoji">🍽️</span>
+            <span class="brand-text">MBG Food<span class="dot-accent">.</span></span>
+          </a>
+          <div class="nav-links">
+            <a href="#" class="nav-link active" id="nav-upload" data-page="upload">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Upload Gambar
+            </a>
+            <a href="#" class="nav-link" id="nav-realtime" data-page="realtime">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Streaming Real-Time
+            </a>
+          </div>
+          <div class="nav-badge">
+            <span class="badge-dot"></span>
+            <span>YOLOv11 Ready</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- ============ PAGE: Upload Gambar ============ -->
+      <section id="page-upload" class="page page-upload active">
+
+        <!-- State 1: Hero + Upload Area -->
+        <div id="upload-hero" class="upload-hero">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">
+                Deteksi Makanan Bergizi Gratis(MBG) &<br>
+                <span class="hero-highlight">Estimasi Nutrisi AI</span>
+              </h1>
+              <p class="hero-desc">
+                Mendukung Program Makan Bergizi Gratis (MBG) melalui deteksi otomatis jenis makanan dan estimasi kandungan nutrisi berbasis AI.
+              </p>
+              <div class="hero-features">
+                <div class="feature-item">
+                  <span class="feature-icon">⚡</span>
+                  <span>Deteksi Instan</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">🎯</span>
+                  <span>27 Jenis Makanan</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-icon">📊</span>
+                  <span>Estimasi Nutrisi</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-card">
+              <!-- Upload placeholder -->
+              <div id="upload-placeholder" class="upload-placeholder">
+                <div class="upload-dropzone" id="upload-dropzone">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p class="dropzone-title">Drag & drop foto makanan</p>
+                  <p class="dropzone-sub">atau klik untuk memilih file</p>
+                  <span class="dropzone-formats">JPG, PNG, WEBP — Max 10MB</span>
+                </div>
+              </div>
+
+              <!-- Image preview (hidden initially) -->
+              <div id="upload-preview" class="upload-preview hidden">
+                <div class="preview-image-wrap">
+                  <img id="preview-image" src="" alt="Preview" />
+                </div>
+                <div class="preview-actions">
+                  <button class="btn btn-analyze" id="btn-analyze">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Analyze Food
+                  </button>
+                  <button class="btn btn-outline" id="btn-change-photo">Change Photo</button>
+                </div>
+              </div>
+
+              <!-- Preparing state -->
+              <div id="upload-preparing" class="upload-preparing hidden">
+                <div class="preview-image-wrap">
+                  <img id="preparing-image" src="" alt="Analyzing" />
+                  <div class="preparing-overlay">
+                    <div class="preparing-spinner"></div>
+                  </div>
+                </div>
+                <div class="preview-actions">
+                  <button class="btn btn-preparing" disabled>
+                    <div class="spinner-small"></div>
+                    Preparing...
+                  </button>
+                  <button class="btn btn-outline" disabled>Change Photo</button>
+                </div>
+              </div>
+
+              <input type="file" id="file-input" accept="image/*" hidden />
+            </div>
+          </div>
+        </div>
+
+        <!-- State 2: Results (hidden initially) -->
+        <div id="upload-results" class="results-page hidden">
+          <div class="results-topbar">
+            <button class="btn-back" id="btn-back-upload">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Kembali
+            </button>
+            <h2 class="results-title" id="results-food-title">
+              <span class="results-icon">✅</span>
+              <span id="results-title-text">Hasil Deteksi</span>
+            </h2>
+          </div>
+
+          <div class="results-body">
+            <!-- Left: Image with detections -->
+            <div class="results-image-panel">
+              <div class="results-canvas-wrap">
+                <canvas id="results-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Right: Nutrition Summary -->
+            <div class="results-info-panel">
+              <div class="nutrition-header">
+                <h3>Nutrition Summary <span class="serving-note" id="serving-note">(~100g per item)</span></h3>
+                <div class="servings-control">
+                  <span>Servings</span>
+                  <div class="servings-input-wrap">
+                    <input type="number" id="servings-input" value="1" min="1" max="10" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Detected food description -->
+              <div class="detection-description" id="detection-description"></div>
+
+              <!-- Food tags -->
+              <div class="food-tags" id="food-tags"></div>
+
+              <!-- Nutrition cards -->
+              <div class="nutrition-cards" id="nutrition-cards">
+                <div class="nut-card nut-calories">
+                  <span class="nut-icon">🔥</span>
+                  <div class="nut-data">
+                    <span class="nut-label">Calories</span>
+                    <span class="nut-value" id="nut-calories">0</span>
+                  </div>
+                </div>
+                <div class="nut-card nut-protein">
+                  <span class="nut-icon">🥩</span>
+                  <div class="nut-data">
+                    <span class="nut-label">Protein</span>
+                    <span class="nut-value" id="nut-protein">0g</span>
+                  </div>
+                </div>
+                <div class="nut-card nut-carbs">
+                  <span class="nut-icon">🌾</span>
+                  <div class="nut-data">
+                    <span class="nut-label">Carbs</span>
+                    <span class="nut-value" id="nut-carbs">0g</span>
+                  </div>
+                </div>
+                <div class="nut-card nut-fat">
+                  <span class="nut-icon">🫒</span>
+                  <div class="nut-data">
+                    <span class="nut-label">Fat</span>
+                    <span class="nut-value" id="nut-fat">0g</span>
+                  </div>
+                </div>
+                <div class="nut-card nut-fiber">
+                  <span class="nut-icon">🥬</span>
+                  <div class="nut-data">
+                    <span class="nut-label">Fiber</span>
+                    <span class="nut-value" id="nut-fiber">0g</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Daily Macro Progress -->
+              <div class="macro-progress-section">
+                <div class="macro-header">
+                  <span>Daily Macro Progress</span>
+                </div>
+                <div class="macro-bars">
+                  <div class="macro-row">
+                    <span class="macro-name">Kalori</span>
+                    <div class="macro-track"><div class="macro-fill macro-fill-cal" id="macro-cal"></div></div>
+                    <span class="macro-pct" id="macro-cal-pct">0%</span>
+                  </div>
+                  <div class="macro-row">
+                    <span class="macro-name">Protein</span>
+                    <div class="macro-track"><div class="macro-fill macro-fill-pro" id="macro-pro"></div></div>
+                    <span class="macro-pct" id="macro-pro-pct">0%</span>
+                  </div>
+                  <div class="macro-row">
+                    <span class="macro-name">Karbohidrat</span>
+                    <div class="macro-track"><div class="macro-fill macro-fill-carb" id="macro-carb"></div></div>
+                    <span class="macro-pct" id="macro-carb-pct">0%</span>
+                  </div>
+                  <div class="macro-row">
+                    <span class="macro-name">Lemak</span>
+                    <div class="macro-track"><div class="macro-fill macro-fill-fat" id="macro-fat"></div></div>
+                    <span class="macro-pct" id="macro-fat-pct">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kelayakan Nutrisi -->
+          <div class="adequacy-section" id="adequacy-section">
+            <h3><span>📋</span> Kelayakan Nutrisi</h3>
+            <div class="adequacy-content" id="adequacy-content"></div>
+          </div>
+
+          <!-- Additional Info -->
+          <div class="additional-info" id="additional-info">
+            <h3><span>ℹ️</span> Informasi Tambahan</h3>
+            <p id="additional-text"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PAGE: Streaming Real-Time ============ -->
+      <section id="page-realtime" class="page page-realtime">
+        <div class="realtime-container">
+          <div class="realtime-grid">
+            <!-- Camera View -->
+            <div class="camera-panel">
+              <div class="camera-view" id="camera-view">
+                <video id="video" autoplay playsinline muted></video>
+                <canvas id="camera-canvas"></canvas>
+                <div class="camera-fps" id="camera-fps">0 FPS</div>
+                <div class="camera-placeholder" id="camera-placeholder">
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <p>Kamera belum aktif</p>
+                  <p class="camera-ph-sub">Klik tombol di bawah untuk memulai</p>
+                </div>
+              </div>
+              <div class="camera-controls">
+                <button class="btn btn-analyze" id="btn-start-cam">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Mulai Kamera
+                </button>
+                <button class="btn btn-danger hidden" id="btn-stop-cam">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                  Stop Kamera
+                </button>
+                <div class="conf-control">
+                  <label>Confidence: <strong id="conf-val">50</strong>%</label>
+                  <input type="range" id="conf-slider" min="10" max="95" value="50" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Results -->
+            <div class="live-results-panel">
+              <div class="live-results-header">
+                <h3>📊 Hasil Deteksi</h3>
+                <span class="live-count" id="live-count">0 item</span>
+              </div>
+              <div class="live-results-list" id="live-results-list">
+                <div class="live-empty">
+                  <span>🔍</span>
+                  <p>Arahkan kamera ke makanan</p>
+                </div>
+              </div>
+              <div class="live-nutrition hidden" id="live-nutrition">
+                <h4>🥗 Total Nutrisi</h4>
+                <div class="live-nut-grid">
+                  <div class="live-nut-item"><span class="ln-val" id="ln-cal">0</span><span class="ln-label">Kalori</span></div>
+                  <div class="live-nut-item"><span class="ln-val" id="ln-pro">0g</span><span class="ln-label">Protein</span></div>
+                  <div class="live-nut-item"><span class="ln-val" id="ln-carb">0g</span><span class="ln-label">Karbo</span></div>
+                  <div class="live-nut-item"><span class="ln-val" id="ln-fat">0g</span><span class="ln-label">Lemak</span></div>
+                  <div class="live-nut-item"><span class="ln-val" id="ln-fib">0g</span><span class="ln-label">Serat</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Sistem Deteksi Makanan & Estimasi Nutrisi — Powered by YOLOv11 & ONNX Runtime Web</p>
+        <p class="footer-note">Data nutrisi berdasarkan TKPI 2017 (Tabel Komposisi Pangan Indonesia)</p>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
