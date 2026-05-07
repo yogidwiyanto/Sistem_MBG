@@ -316,8 +316,8 @@ async function startCamera() {
     $("camera-active-controls").classList.remove("hidden");
     $("camera-active-controls").style.display = "flex";
 
-    // Use smaller input for the new 320x320 optimized model
-    detector.setInputSize(320);
+    // Use 416x416 as the sweet spot for realtime (2.3x faster than 640, better accuracy than 320)
+    detector.setInputSize(416);
     isDetecting = true;
     detectLoop();
   } catch (e) {
