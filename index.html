@@ -270,14 +270,20 @@
                 </div>
               </div>
               <div class="camera-controls">
-                <button class="btn btn-analyze" id="btn-start-cam">
+                <button class="btn btn-analyze w-full" id="btn-start-cam">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                   Mulai Kamera
                 </button>
-                <button class="btn btn-danger hidden" id="btn-stop-cam">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
-                  Stop Kamera
-                </button>
+                <div id="camera-active-controls" class="hidden flex gap-3 w-full">
+                  <button class="btn btn-outline" style="flex: 1; display:flex; justify-content:center;" id="btn-flip-cam">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.44-5.44"/></svg>
+                    Putar
+                  </button>
+                  <button class="btn btn-danger" style="flex: 1; display:flex; justify-content:center;" id="btn-stop-cam">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                    Stop
+                  </button>
+                </div>
                 <div class="conf-control">
                   <label>Confidence: <strong id="conf-val">50</strong>%</label>
                   <input type="range" id="conf-slider" min="10" max="95" value="50" />

@@ -271,13 +271,14 @@ const video = $("video");
 const cameraCanvas = $("camera-canvas");
 const cameraPlaceholder = $("camera-placeholder");
 let cameraRenderer = null;
+let currentFacingMode = "environment"; // default to back camera
 
 async function startCamera() {
   try {
     const attempts = [
+      { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { video: { facingMode: currentFacingMode } },
       { video: true },
-      { video: { width: { ideal: 1280 }, height: { ideal: 720 } } },
-      { video: { facingMode: "environment" } },
     ];
 
     let stream = null;
@@ -310,12 +311,12 @@ async function startCamera() {
     cameraCanvas.width = video.videoWidth;
     cameraCanvas.height = video.videoHeight;
     cameraRenderer = new Renderer(cameraCanvas);
-    cameraPlaceholder.classList.add("hidden");
     $("btn-start-cam").classList.add("hidden");
-    $("btn-stop-cam").classList.remove("hidden");
+    $("camera-active-controls").classList.remove("hidden");
+    $("camera-active-controls").style.display = "flex";
 
-    // The ONNX model has a fixed shape of 640x640, so we must use 640
-    detector.setInputSize(640);
+    // Use smaller input for the new 320x320 optimized model
+    detector.setInputSize(320);
     isDetecting = true;
     detectLoop();
   } catch (e) {
@@ -331,7 +332,8 @@ function stopCamera() {
   if (cameraRenderer) cameraRenderer.clear();
   cameraPlaceholder.classList.remove("hidden");
   $("btn-start-cam").classList.remove("hidden");
-  $("btn-stop-cam").classList.add("hidden");
+  $("camera-active-controls").classList.add("hidden");
+  $("camera-active-controls").style.display = "none";
   $("camera-fps").textContent = "0 FPS";
   $("live-results-list").innerHTML = '<div class="live-empty"><span>🔍</span><p>Arahkan kamera ke makanan</p></div>';
   $("live-nutrition").classList.add("hidden");
@@ -393,6 +395,11 @@ function updateLiveResults(dets) {
 
 $("btn-start-cam").addEventListener("click", startCamera);
 $("btn-stop-cam").addEventListener("click", stopCamera);
+$("btn-flip-cam").addEventListener("click", () => {
+  currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+  stopCamera();
+  setTimeout(startCamera, 300); // Restart with new facingMode
+});
 $("conf-slider").addEventListener("input", (e) => {
   $("conf-val").textContent = e.target.value;
   if (detector) detector.setConfidence(parseInt(e.target.value) / 100);
