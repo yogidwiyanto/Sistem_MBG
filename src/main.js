@@ -276,7 +276,8 @@ let currentFacingMode = "environment"; // default to back camera
 async function startCamera() {
   try {
     const attempts = [
-      { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { video: { facingMode: { exact: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { video: { facingMode: { exact: currentFacingMode } } },
       { video: { facingMode: currentFacingMode } },
       { video: true },
     ];
@@ -398,7 +399,8 @@ $("btn-stop-cam").addEventListener("click", stopCamera);
 $("btn-flip-cam").addEventListener("click", () => {
   currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
   stopCamera();
-  setTimeout(startCamera, 300); // Restart with new facingMode
+  // Wait longer (500ms) for mobile hardware to release the camera fully
+  setTimeout(startCamera, 500);
 });
 $("conf-slider").addEventListener("input", (e) => {
   $("conf-val").textContent = e.target.value;
